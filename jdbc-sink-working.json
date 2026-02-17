@@ -1,0 +1,21 @@
+{
+  "name": "postgres-sink-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:postgresql://db-dest-debezium:5432/postgres",
+    "connection.username": "postgres",
+    "connection.password": "postgres",
+    "topics": "dbserver1.public.employees",
+    "insert.mode": "upsert",
+    "primary.key.mode": "record_key",
+    "primary.key.fields": "emp_id",
+    "delete.enabled": "true",
+    "schema.evolution": "none",
+    "table.name.format": "employees",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "true",
+    "value.converter.schemas.enable": "true"
+  }
+}
