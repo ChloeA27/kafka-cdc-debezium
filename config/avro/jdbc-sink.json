@@ -11,7 +11,7 @@
     "primary.key.mode": "record_key",
     "primary.key.fields": "emp_id",
     "delete.enabled": "true",
-    "schema.evolution": "none",
+    "schema.evolution": "basic",
     "table.name.format": "employees",
     "key.converter": "io.confluent.connect.avro.AvroConverter",
     "value.converter": "io.confluent.connect.avro.AvroConverter",

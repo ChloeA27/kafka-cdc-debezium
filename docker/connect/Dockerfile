@@ -1,21 +1,32 @@
 # Custom Kafka Connect image with Confluent Avro Converter
-# Extends official Debezium Connect 2.5 and adds Avro plugin
+# Multi-stage build: copies JARs directly from the official Confluent Schema Registry
+# image (same 7.6.0 version) — no internet downloads, no dependency guessing.
 
+# Stage 1: Confluent Schema Registry image (source of Avro converter JARs)
+FROM confluentinc/cp-schema-registry:7.6.0 AS confluent-src
+
+# Stage 2: Final image based on Debezium Connect
 FROM debezium/connect:2.5
 
 USER root
 
-# Install dependencies needed to download and extract the plugin
-RUN microdnf install -y curl unzip && microdnf clean all
+ENV PLUGIN_DIR=/kafka/connect/confluentinc-kafka-connect-avro-converter
+RUN mkdir -p ${PLUGIN_DIR}
 
-# Download and install Confluent Avro Converter plugin from Confluent Hub
-RUN curl -L -o /tmp/avro-converter.zip \
-    "https://d1i4a15mxbxib1.cloudfront.net/api/plugins/confluentinc/kafka-connect-avro-converter/versions/7.6.0/confluentinc-kafka-connect-avro-converter-7.6.0.zip" && \
-    mkdir -p /kafka/connect/confluentinc-kafka-connect-avro-converter && \
-    cd /tmp && unzip avro-converter.zip && \
-    cp confluentinc-kafka-connect-avro-converter-7.6.0/lib/*.jar \
-       /kafka/connect/confluentinc-kafka-connect-avro-converter/ && \
-    rm -rf /tmp/avro-converter.zip /tmp/confluentinc-kafka-connect-avro-converter-7.6.0
+# Copy the complete, tested set of Avro converter JARs from the Confluent image.
+# These are the exact versions Confluent packages together — no missing dependencies.
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/avro-1.11.3.jar               ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-avro-serializer-7.6.0.jar          ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-connect-avro-converter-7.6.0.jar   ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-connect-avro-data-7.6.0.jar        ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-schema-converter-7.6.0.jar         ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-schema-registry-client-7.6.0.jar   ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/kafka-schema-serializer-7.6.0.jar        ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/guava-32.0.1-jre.jar                     ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/failureaccess-1.0.1.jar                  ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/kafka-serde-tools/commons-compress-1.21.jar                ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/confluent-common/common-config-7.6.0.jar                   ${PLUGIN_DIR}/
+COPY --from=confluent-src /usr/share/java/confluent-common/common-utils-7.6.0.jar                    ${PLUGIN_DIR}/
 
 # Switch back to non-root user (Debezium default)
 USER 1001

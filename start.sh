@@ -52,7 +52,7 @@ done
 echo ""
 echo "Step 5: Creating Debezium Source Connector (Avro + Log Compaction)..."
 curl -X POST -H "Content-Type: application/json" \
-  --data @config/debezium-source-avro.json \
+  --data @config/avro/debezium-source.json \
   http://localhost:8084/connectors
 
 echo ""
@@ -60,7 +60,7 @@ echo ""
 echo "Step 6: Creating JDBC Sink Connector (Avro)..."
 sleep 5
 curl -X POST -H "Content-Type: application/json" \
-  --data @config/jdbc-sink-avro.json \
+  --data @config/avro/jdbc-sink.json \
   http://localhost:8084/connectors
 
 echo ""
