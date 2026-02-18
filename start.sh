@@ -13,8 +13,8 @@ echo "=================================================="
 
 # 1. Start Docker services
 echo ""
-echo "Step 1: Starting Docker services with KRaft..."
-docker-compose up -d
+echo "Step 1: Starting Docker services with KRaft (building Avro plugin if needed)..."
+docker-compose up -d --build
 
 # Wait for services to be ready
 echo ""
@@ -50,17 +50,17 @@ until curl -s http://localhost:8084/ > /dev/null; do
 done
 
 echo ""
-echo "Step 5: Creating Debezium Source Connector (with Log Compaction)..."
+echo "Step 5: Creating Debezium Source Connector (Avro + Log Compaction)..."
 curl -X POST -H "Content-Type: application/json" \
-  --data @config/debezium-source-working.json \
+  --data @config/debezium-source-avro.json \
   http://localhost:8084/connectors
 
 echo ""
 echo ""
-echo "Step 6: Creating JDBC Sink Connector..."
+echo "Step 6: Creating JDBC Sink Connector (Avro)..."
 sleep 5
 curl -X POST -H "Content-Type: application/json" \
-  --data @config/jdbc-sink-working.json \
+  --data @config/jdbc-sink-avro.json \
   http://localhost:8084/connectors
 
 echo ""
@@ -88,11 +88,10 @@ echo "=================================================="
 echo ""
 echo "🎯 Optimizations Enabled:"
 echo "  ✓ No Zookeeper (KRaft mode)"
+echo "  ✓ Avro format (40-60% smaller than JSON)"
+echo "  ✓ Schema Registry (type safety + evolution)"
 echo "  ✓ Log compaction (keeps only latest state)"
-echo "  ✓ Schema-enabled JSON (with schemas)"
 echo "  ✓ Compression (snappy)"
-echo ""
-echo "ℹ️  Note: Avro requires Confluent Avro Converter plugin"
 echo ""
 echo "Next steps:"
 echo "  • Test CDC: bash test.sh"

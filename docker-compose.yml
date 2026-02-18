@@ -65,9 +65,12 @@ services:
       timeout: 10s
       retries: 5
 
-  # Kafka Connect with Debezium
+  # Kafka Connect with Debezium + Confluent Avro Converter
   kafka-connect-debezium:
-    image: debezium/connect:2.5
+    build:
+      context: .
+      dockerfile: docker/connect/Dockerfile
+    image: debezium-connect-avro:2.5
     container_name: kafka-connect-debezium
     depends_on:
       kafka-debezium:

@@ -1,0 +1,27 @@
+{
+  "name": "postgres-source-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "db-source-debezium",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "postgres",
+    "database.server.name": "dbserver1",
+    "table.include.list": "public.employees",
+    "plugin.name": "pgoutput",
+    "publication.autocreate.mode": "filtered",
+    "topic.prefix": "dbserver1",
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "topic.creation.default.replication.factor": 1,
+    "topic.creation.default.partitions": 1,
+    "topic.creation.default.cleanup.policy": "compact",
+    "topic.creation.default.compression.type": "snappy",
+    "topic.creation.default.min.compaction.lag.ms": "60000",
+    "topic.creation.default.delete.retention.ms": "604800000"
+  }
+}
