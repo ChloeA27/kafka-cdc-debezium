@@ -24,7 +24,7 @@ sleep 30
 # 2. Initialize Source Database
 echo ""
 echo "Step 2: Initializing Source Database (port 5437)..."
-docker exec -i db-source-debezium psql -U postgres -d postgres < setup_debezium.sql
+docker exec -i db-source-debezium psql -U postgres -d postgres < sql/setup_debezium.sql
 
 # 3. Initialize Destination Database
 echo ""
@@ -52,7 +52,7 @@ done
 echo ""
 echo "Step 5: Creating Debezium Source Connector (with Log Compaction)..."
 curl -X POST -H "Content-Type: application/json" \
-  --data @debezium-source-working.json \
+  --data @config/debezium-source-working.json \
   http://localhost:8084/connectors
 
 echo ""
@@ -60,7 +60,7 @@ echo ""
 echo "Step 6: Creating JDBC Sink Connector..."
 sleep 5
 curl -X POST -H "Content-Type: application/json" \
-  --data @jdbc-sink-working.json \
+  --data @config/jdbc-sink-working.json \
   http://localhost:8084/connectors
 
 echo ""
